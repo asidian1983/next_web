@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 export interface GenerateJobRequest {
   prompt: string;
@@ -20,6 +20,14 @@ export interface JobStatusResponse {
   status: 'pending' | 'processing' | 'done' | 'failed';
   imageUrl?: string;
   error?: string;
+}
+
+export interface BatchGenerateRequest {
+  prompts: GenerateJobRequest[];
+}
+
+export interface BatchJobResponse {
+  jobs: Array<{ jobId: string; status: string; designId: string }>;
 }
 
 @Injectable()
@@ -86,6 +94,55 @@ export class AiService {
       return response.data;
     } catch (error) {
       this.logger.error(`Failed to get job status for ${jobId}`, error);
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status ?? HttpStatus.BAD_GATEWAY;
+        const message =
+          error.response?.data?.detail ?? 'AI service unavailable';
+        throw new HttpException(message, status);
+      }
+      throw new HttpException(
+        'Failed to communicate with AI service',
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
+  async streamJobStatus(jobId: string): Promise<AxiosResponse> {
+    try {
+      const response = await this.client.get(`/jobs/${jobId}/stream`, {
+        responseType: 'stream',
+        timeout: 0,
+        headers: {
+          Accept: 'text/event-stream',
+        },
+      });
+      return response;
+    } catch (error) {
+      this.logger.error(`Failed to open SSE stream for job ${jobId}`, error);
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status ?? HttpStatus.BAD_GATEWAY;
+        const message =
+          error.response?.data?.detail ?? 'AI service unavailable';
+        throw new HttpException(message, status);
+      }
+      throw new HttpException(
+        'Failed to communicate with AI service',
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
+  async batchGenerate(
+    requests: GenerateJobRequest[],
+  ): Promise<BatchJobResponse> {
+    try {
+      const response = await this.client.post<BatchJobResponse>(
+        '/generate/batch',
+        { prompts: requests },
+      );
+      return response.data;
+    } catch (error) {
+      this.logger.error('Failed to submit batch generation job to FastAPI', error);
       if (axios.isAxiosError(error)) {
         const status = error.response?.status ?? HttpStatus.BAD_GATEWAY;
         const message =
