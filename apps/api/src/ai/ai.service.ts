@@ -66,6 +66,18 @@ export class AiService {
     }
   }
 
+  async analyzeImage(imageUrl: string): Promise<string[]> {
+    try {
+      const response = await this.client.post<{ tags: string[] }>('/analyze', {
+        image_url: imageUrl,
+      });
+      return response.data?.tags ?? [];
+    } catch (error) {
+      this.logger.error('Failed to analyze image via FastAPI', error);
+      return [];
+    }
+  }
+
   async getJobStatus(jobId: string): Promise<JobStatusResponse> {
     try {
       const response = await this.client.get<JobStatusResponse>(

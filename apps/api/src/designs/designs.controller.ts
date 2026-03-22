@@ -10,9 +10,14 @@ import {
   Request,
   HttpCode,
   HttpStatus,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { DesignsService } from './designs.service';
 import { GenerateDesignDto } from './dto/generate-design.dto';
+import { UploadDesignDto } from './dto/upload-design.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 interface AuthenticatedRequest extends Request {
@@ -40,6 +45,17 @@ export class DesignsController {
       page ? Number(page) : 1,
       limit ? Number(limit) : 10,
     );
+  }
+
+  @Post('upload')
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+  async uploadDesign(
+    @Request() req: AuthenticatedRequest,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: UploadDesignDto,
+  ) {
+    return this.designsService.uploadDesign(file, dto, req.user.id);
   }
 
   @Post('generate')

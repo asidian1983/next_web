@@ -6,7 +6,9 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AiService } from '../ai/ai.service';
+import { UploadService } from '../upload/upload.service';
 import { GenerateDesignDto } from './dto/generate-design.dto';
+import { UploadDesignDto } from './dto/upload-design.dto';
 import { DesignStatus } from '@prisma/client';
 
 @Injectable()
@@ -16,7 +18,37 @@ export class DesignsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly aiService: AiService,
+    private readonly uploadService: UploadService,
   ) {}
+
+  async uploadDesign(
+    file: Express.Multer.File,
+    dto: UploadDesignDto,
+    userId: string,
+  ) {
+    this.uploadService.validateFile(file);
+
+    const { imageUrl } = await this.uploadService.saveFile(file, userId);
+
+    const tags = await this.aiService.analyzeImage(imageUrl);
+
+    const design = await this.prisma.design.create({
+      data: {
+        prompt: '',
+        title: dto.title ?? null,
+        source: 'uploaded',
+        imageUrl,
+        tags,
+        status: DesignStatus.DONE,
+        userId,
+      },
+    });
+
+    return {
+      data: design,
+      message: 'Design uploaded successfully',
+    };
+  }
 
   async listDesigns(userId: string, page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
