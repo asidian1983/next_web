@@ -19,18 +19,21 @@ model User {
 }
 
 model Design {
-  id        String       @id @default(cuid())
-  prompt    String
-  style     String       @default("realistic")
-  imageUrl  String?
-  status    DesignStatus @default(PENDING)
-  jobId     String?
-  width     Int          @default(512)
-  height    Int          @default(512)
-  user      User         @relation(fields: [userId], references: [id])
-  userId    String
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  id          String       @id @default(cuid())
+  prompt      String
+  style       String       @default("realistic")
+  imageUrl    String?
+  status      DesignStatus @default(PENDING)
+  jobId       String?
+  width       Int          @default(512)
+  height      Int          @default(512)
+  title       String?
+  tags        String[]
+  source      String       @default("generated")
+  user        User         @relation(fields: [userId], references: [id])
+  userId      String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
 
 enum Role {
