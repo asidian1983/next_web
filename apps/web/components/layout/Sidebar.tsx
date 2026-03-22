@@ -10,6 +10,9 @@ import {
   Sparkles,
   ChevronRight,
   Upload,
+  Globe,
+  Heart,
+  FolderOpen,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
@@ -19,6 +22,9 @@ const navItems = [
   { href: '/generate', label: 'Generate Design', icon: PlusCircle },
   { href: '/upload', label: 'Upload', icon: Upload },
   { href: '/designs', label: 'My Designs', icon: Image },
+  { href: '/gallery', label: 'Gallery', icon: Globe },
+  { href: '/favorites', label: 'Favorites', icon: Heart },
+  { href: '/collections', label: 'Collections', icon: FolderOpen },
   { href: '/settings', label: 'Settings', icon: Settings },
 ]
 

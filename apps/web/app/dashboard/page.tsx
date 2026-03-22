@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { PlusCircle, LayoutGrid, TrendingUp, Clock, CheckCircle } from 'lucide-react'
@@ -9,13 +9,19 @@ import { useDesigns } from '@/hooks/useDesigns'
 import { Header } from '@/components/layout/Header'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { DesignGrid } from '@/components/designs/DesignGrid'
+import { SearchFilter, type SearchFilterValues } from '@/components/designs/SearchFilter'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
 
 export default function DashboardPage() {
   const router = useRouter()
   const { isAuthenticated, user } = useAuthStore()
-  const { data, isLoading } = useDesigns()
+  const [filters, setFilters] = useState<SearchFilterValues>({ search: '', style: '', source: '' })
+  const { data, isLoading } = useDesigns({
+    search: filters.search || undefined,
+    style: filters.style || undefined,
+    source: filters.source || undefined,
+  })
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -96,7 +102,8 @@ export default function DashboardPage() {
                 <span className="text-xs text-gray-500">{total} total</span>
               )}
             </div>
-            <DesignGrid />
+            <SearchFilter values={filters} onChange={setFilters} className="mb-4" />
+            <DesignGrid designs={data?.data ?? []} isLoading={isLoading} />
           </div>
         </main>
       </div>
