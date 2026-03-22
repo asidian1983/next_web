@@ -1,0 +1,83 @@
+# Production overrides for docker-compose.yml
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# Key differences from base compose:
+#   - No hot-reload volume mounts
+#   - Uses pre-built image tags (set IMAGE_TAG env var, default: latest)
+#   - Resource limits enforced
+#   - restart: unless-stopped on all services
+
+version: "3.9"
+
+services:
+  postgres:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  redis:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+
+  api:
+    image: textile-ai/api:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    # Remove dev volume mounts (no hot reload in production)
+    volumes:
+      - ./uploads:/app/uploads
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  ai:
+    image: textile-ai/ai:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      PYTHONUNBUFFERED: "1"
+    # Remove dev volume mounts (no hot reload in production)
+    volumes:
+      - ai_models:/app/model_cache
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+  web:
+    image: textile-ai/web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    # Remove dev volume mounts (no hot reload in production)
+    volumes: []
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 256M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
