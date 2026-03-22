@@ -9,6 +9,8 @@ import { AiService } from '../ai/ai.service';
 import { UploadService } from '../upload/upload.service';
 import { GenerateDesignDto } from './dto/generate-design.dto';
 import { UploadDesignDto } from './dto/upload-design.dto';
+import { UpdateDesignDto } from './dto/update-design.dto';
+import { QueryDesignsDto } from './dto/query-designs.dto';
 import { DesignStatus } from '@prisma/client';
 
 @Injectable()
@@ -50,28 +52,45 @@ export class DesignsService {
     };
   }
 
-  async listDesigns(userId: string, page: number = 1, limit: number = 10) {
+  async listDesigns(userId: string, query: QueryDesignsDto) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
     const skip = (page - 1) * limit;
+
+    const where: Record<string, unknown> = { userId };
+
+    if (query.search) {
+      where.OR = [
+        { title: { contains: query.search, mode: 'insensitive' } },
+        { prompt: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (query.tags && query.tags.length > 0) {
+      where.tags = { hasSome: query.tags };
+    }
+
+    if (query.style) {
+      where.style = query.style;
+    }
+
+    if (query.source) {
+      where.source = query.source;
+    }
 
     const [designs, total] = await Promise.all([
       this.prisma.design.findMany({
-        where: { userId },
+        where,
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
-      this.prisma.design.count({ where: { userId } }),
+      this.prisma.design.count({ where }),
     ]);
 
     return {
-      data: designs,
+      data: { items: designs, total, page, limit },
       message: 'Designs retrieved successfully',
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
     };
   }
 
@@ -138,6 +157,35 @@ export class DesignsService {
     };
   }
 
+  async updateDesign(userId: string, designId: string, dto: UpdateDesignDto) {
+    const design = await this.prisma.design.findUnique({
+      where: { id: designId },
+    });
+
+    if (!design) {
+      throw new NotFoundException('Design not found');
+    }
+
+    if (design.userId !== userId) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    const updated = await this.prisma.design.update({
+      where: { id: designId },
+      data: {
+        ...(dto.title !== undefined && { title: dto.title }),
+        ...(dto.tags !== undefined && { tags: dto.tags }),
+        ...(dto.isPublic !== undefined && { isPublic: dto.isPublic }),
+        ...(dto.style !== undefined && { style: dto.style }),
+      },
+    });
+
+    return {
+      data: updated,
+      message: 'Design updated successfully',
+    };
+  }
+
   async deleteDesign(userId: string, designId: string) {
     const design = await this.prisma.design.findUnique({
       where: { id: designId },
@@ -193,6 +241,119 @@ export class DesignsService {
         designId: design.id,
       },
       message: 'Job status retrieved',
+    };
+  }
+
+  async toggleFavorite(userId: string, designId: string) {
+    const design = await this.prisma.design.findUnique({
+      where: { id: designId },
+    });
+
+    if (!design) {
+      throw new NotFoundException('Design not found');
+    }
+
+    const existing = await this.prisma.favorite.findUnique({
+      where: { userId_designId: { userId, designId } },
+    });
+
+    let isFavorited: boolean;
+
+    if (existing) {
+      await this.prisma.favorite.delete({
+        where: { userId_designId: { userId, designId } },
+      });
+      await this.prisma.design.update({
+        where: { id: designId },
+        data: { likesCount: { decrement: 1 } },
+      });
+      isFavorited = false;
+    } else {
+      await this.prisma.favorite.create({
+        data: { userId, designId },
+      });
+      await this.prisma.design.update({
+        where: { id: designId },
+        data: { likesCount: { increment: 1 } },
+      });
+      isFavorited = true;
+    }
+
+    const updated = await this.prisma.design.findUnique({
+      where: { id: designId },
+      select: { likesCount: true },
+    });
+
+    return {
+      data: { isFavorited, likesCount: updated!.likesCount },
+      message: isFavorited ? 'Design favorited' : 'Design unfavorited',
+    };
+  }
+
+  async getPublicDesigns(query: QueryDesignsDto) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+    const skip = (page - 1) * limit;
+
+    const where: Record<string, unknown> = { isPublic: true };
+
+    if (query.search) {
+      where.OR = [
+        { title: { contains: query.search, mode: 'insensitive' } },
+        { prompt: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (query.tags && query.tags.length > 0) {
+      where.tags = { hasSome: query.tags };
+    }
+
+    if (query.style) {
+      where.style = query.style;
+    }
+
+    if (query.source) {
+      where.source = query.source;
+    }
+
+    const [designs, total] = await Promise.all([
+      this.prisma.design.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+        include: {
+          user: { select: { id: true, name: true } },
+        },
+      }),
+      this.prisma.design.count({ where }),
+    ]);
+
+    return {
+      data: { items: designs, total, page, limit },
+      message: 'Public designs retrieved successfully',
+    };
+  }
+
+  async getFavoriteDesigns(userId: string, page = 1, limit = 10) {
+    const skip = (page - 1) * limit;
+
+    const [favorites, total] = await Promise.all([
+      this.prisma.favorite.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+        include: { design: true },
+      }),
+      this.prisma.favorite.count({ where: { userId } }),
+    ]);
+
+    const designs = favorites.map((f) => f.design);
+
+    return {
+      data: { items: designs, total, page, limit },
+      message: 'Favorite designs retrieved successfully',
     };
   }
 }
