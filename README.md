@@ -1,4 +1,6 @@
-# Textile AI Platform
+# Full-Stack SaaS Platform
+
+# https://asidian1983.github.io/next_web/index.html
 
 A monorepo containing three services for an AI-powered textile design platform.
 
