@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { AiService } from '../ai/ai.service';
 import { UploadService } from '../upload/upload.service';
 import { GenerateDesignDto } from './dto/generate-design.dto';
+import { BatchGenerateDto } from './dto/batch-generate.dto';
 import { UploadDesignDto } from './dto/upload-design.dto';
 import { UpdateDesignDto } from './dto/update-design.dto';
 import { QueryDesignsDto } from './dto/query-designs.dto';
@@ -354,6 +355,125 @@ export class DesignsService {
     return {
       data: { items: designs, total, page, limit },
       message: 'Favorite designs retrieved successfully',
+    };
+  }
+
+  async generateBatch(dto: BatchGenerateDto, userId: string) {
+    const designs = await Promise.all(
+      dto.prompts.map((item) =>
+        this.prisma.design.create({
+          data: {
+            prompt: item.prompt,
+            style: item.style ?? 'realistic',
+            width: item.width ?? 512,
+            height: item.height ?? 512,
+            userId,
+            status: DesignStatus.PENDING,
+          },
+        }),
+      ),
+    );
+
+    try {
+      const batchResult = await this.aiService.batchGenerate(
+        designs.map((d) => ({
+          prompt: d.prompt,
+          style: d.style,
+          width: d.width,
+          height: d.height,
+          designId: d.id,
+        })),
+      );
+
+      const jobMap = new Map(
+        batchResult.jobs.map((j) => [j.designId, j.jobId]),
+      );
+
+      const updated = await Promise.all(
+        designs.map((d) => {
+          const jobId = jobMap.get(d.id);
+          return this.prisma.design.update({
+            where: { id: d.id },
+            data: {
+              jobId: jobId ?? null,
+              status: jobId ? DesignStatus.PROCESSING : DesignStatus.FAILED,
+            },
+          });
+        }),
+      );
+
+      return {
+        data: { jobs: updated },
+        message: 'Batch generation started',
+      };
+    } catch (error) {
+      await Promise.all(
+        designs.map((d) =>
+          this.prisma.design.update({
+            where: { id: d.id },
+            data: { status: DesignStatus.FAILED },
+          }),
+        ),
+      );
+
+      this.logger.error('Failed to submit batch generation to AI', error);
+      throw error;
+    }
+  }
+
+  async getGenerationStats(userId: string) {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const [total, byStatusRaw, bySourceRaw, thisMonth] = await Promise.all([
+      this.prisma.design.count({ where: { userId } }),
+      this.prisma.design.groupBy({
+        by: ['status'],
+        where: { userId },
+        _count: { _all: true },
+      }),
+      this.prisma.design.groupBy({
+        by: ['source'],
+        where: { userId },
+        _count: { _all: true },
+      }),
+      this.prisma.design.count({
+        where: { userId, createdAt: { gte: startOfMonth } },
+      }),
+    ]);
+
+    const byStatus = {
+      done: 0,
+      failed: 0,
+      pending: 0,
+      processing: 0,
+    };
+
+    for (const row of byStatusRaw) {
+      const key = row.status.toLowerCase() as keyof typeof byStatus;
+      if (key in byStatus) {
+        byStatus[key] = row._count._all;
+      }
+    }
+
+    const bySource: Record<string, number> = {};
+    for (const row of bySourceRaw) {
+      if (row.source) {
+        bySource[row.source] = row._count._all;
+      }
+    }
+
+    return {
+      data: {
+        total,
+        byStatus,
+        bySource: {
+          generated: bySource['generated'] ?? 0,
+          uploaded: bySource['uploaded'] ?? 0,
+        },
+        thisMonth,
+      },
+      message: 'Generation stats retrieved successfully',
     };
   }
 }
