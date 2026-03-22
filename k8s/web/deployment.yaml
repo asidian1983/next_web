@@ -69,5 +69,5 @@ metadata:
   name: web-config
   namespace: textile-ai
 data:
-  NEXT_PUBLIC_API_URL: "https://api.textile.local"
+  NEXT_PUBLIC_API_URL: "http://api.textile.local"
   NEXT_PUBLIC_AI_URL: "https://ai.textile.local"

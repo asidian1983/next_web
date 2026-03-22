@@ -55,6 +55,16 @@ spec:
                 configMapKeyRef:
                   name: api-config
                   key: AI_SERVICE_URL
+            - name: THROTTLE_TTL
+              valueFrom:
+                configMapKeyRef:
+                  name: api-config
+                  key: THROTTLE_TTL
+            - name: THROTTLE_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  name: api-config
+                  key: THROTTLE_LIMIT
           volumeMounts:
             - name: uploads-storage
               mountPath: /app/uploads
@@ -95,6 +105,8 @@ metadata:
 data:
   JWT_EXPIRES_IN: "7d"
   AI_SERVICE_URL: "http://ai.textile-ai.svc.cluster.local:8000"
+  THROTTLE_TTL: "60"
+  THROTTLE_LIMIT: "100"
 ---
 apiVersion: v1
 kind: Secret

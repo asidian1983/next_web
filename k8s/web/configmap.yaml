@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-config
+  namespace: textile-ai
+data:
+  NEXT_PUBLIC_API_URL: "http://api.textile.local"
+  NODE_ENV: "production"
