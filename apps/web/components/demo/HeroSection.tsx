@@ -4,45 +4,6 @@ import Link from 'next/link'
 import { ArrowRight, Sparkles, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 
-const DESIGN_CARDS = [
-  {
-    gradient: 'from-purple-600 via-violet-500 to-indigo-600',
-    pattern: 'repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(255,255,255,0.06) 4px, rgba(255,255,255,0.06) 8px)',
-    label: 'Geometric',
-    delay: '0ms',
-  },
-  {
-    gradient: 'from-rose-500 via-pink-400 to-fuchsia-500',
-    pattern: 'repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(255,255,255,0.07) 3px, rgba(255,255,255,0.07) 9px)',
-    label: 'Floral',
-    delay: '100ms',
-  },
-  {
-    gradient: 'from-amber-500 via-orange-400 to-yellow-500',
-    pattern: 'repeating-linear-gradient(90deg, transparent, transparent 5px, rgba(255,255,255,0.05) 5px, rgba(255,255,255,0.05) 10px)',
-    label: 'Vintage',
-    delay: '200ms',
-  },
-  {
-    gradient: 'from-emerald-500 via-teal-400 to-cyan-500',
-    pattern: 'repeating-linear-gradient(60deg, transparent, transparent 4px, rgba(255,255,255,0.06) 4px, rgba(255,255,255,0.06) 8px)',
-    label: 'Modern',
-    delay: '150ms',
-  },
-  {
-    gradient: 'from-textile-500 via-textile-400 to-fabric-500',
-    pattern: 'repeating-linear-gradient(30deg, transparent, transparent 3px, rgba(255,255,255,0.07) 3px, rgba(255,255,255,0.07) 6px)',
-    label: 'Abstract',
-    delay: '250ms',
-  },
-  {
-    gradient: 'from-blue-500 via-sky-400 to-cyan-400',
-    pattern: 'repeating-linear-gradient(120deg, transparent, transparent 5px, rgba(255,255,255,0.05) 5px, rgba(255,255,255,0.05) 10px)',
-    label: 'Minimal',
-    delay: '50ms',
-  },
-]
-
 const STATS = [
   { value: '10,000+', label: 'Designs Generated' },
   { value: '500+', label: 'Unique Styles' },
@@ -108,60 +69,15 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right: Animated Design Preview Grid */}
+          {/* Right: Spline 3D Interactive */}
           <div className="relative lg:pl-8">
-            <div className="relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur-lg p-5 shadow-2xl shadow-black/50">
-              {/* Grid header */}
-              <div className="flex items-center gap-1.5 mb-4">
-                <div className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
-                <div className="h-2.5 w-2.5 rounded-full bg-yellow-500/70" />
-                <div className="h-2.5 w-2.5 rounded-full bg-green-500/70" />
-                <span className="ml-2 text-xs text-gray-500 font-mono">ai-textile-studio</span>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                {DESIGN_CARDS.map(({ gradient, pattern, label, delay }) => (
-                  <div
-                    key={label}
-                    className="group relative rounded-xl overflow-hidden aspect-square cursor-pointer animate-float"
-                    style={{ animationDelay: delay }}
-                  >
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-br ${gradient} transition-transform duration-300 group-hover:scale-110`}
-                      style={{ backgroundImage: pattern }}
-                    />
-                    {/* Overlay on hover */}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-end p-2">
-                      <span className="text-xs font-medium text-white/0 group-hover:text-white/90 transition-all duration-300 bg-black/40 rounded-md px-2 py-0.5">
-                        {label}
-                      </span>
-                    </div>
-                    {/* Glow ring on hover */}
-                    <div className={`absolute inset-0 rounded-xl ring-0 group-hover:ring-2 ring-white/30 transition-all duration-300`} />
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-4 flex items-center justify-between">
-                <span className="text-xs text-gray-600">AI-generated patterns</span>
-                <div className="flex items-center gap-1.5">
-                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-xs text-emerald-400">Live preview</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Floating badge */}
-            <div className="absolute -top-4 -right-4 rounded-xl border border-white/10 bg-gray-900/90 backdrop-blur-md px-3 py-2 shadow-xl animate-float" style={{ animationDelay: '500ms' }}>
-              <div className="flex items-center gap-2">
-                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-textile-500 to-fabric-600">
-                  <Sparkles className="h-3 w-3 text-white" />
-                </div>
-                <div>
-                  <div className="text-xs font-semibold text-white">New design ready</div>
-                  <div className="text-xs text-gray-500">0.3s generation time</div>
-                </div>
-              </div>
+            <div className="relative rounded-2xl border border-white/10 overflow-hidden shadow-2xl shadow-black/50" style={{ height: '500px' }}>
+              <iframe
+                src="https://my.spline.design/boxeshover-owt6mJfKfrEtuxEuXtS0K5VC/"
+                width="100%"
+                height="100%"
+                title="3D Interactive Preview"
+              />
             </div>
           </div>
         </div>
