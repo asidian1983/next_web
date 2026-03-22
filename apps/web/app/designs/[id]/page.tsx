@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -15,15 +15,30 @@ import {
   XCircle,
   Clock,
   Loader2,
+  Heart,
+  Pencil,
+  FolderPlus,
+  Globe,
+  Tag,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
-import { useDesign, useDeleteDesign } from '@/hooks/useDesigns'
+import { useDesign, useDeleteDesign, useToggleFavorite } from '@/hooks/useDesigns'
+import { useCollections, useAddToCollection } from '@/hooks/useCollections'
+import { DesignEditModal } from '@/components/designs/DesignEditModal'
 import { Header } from '@/components/layout/Header'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { cn, formatDate, getStatusColor } from '@/lib/utils'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
+function resolveImageUrl(url?: string): string | undefined {
+  if (!url) return undefined
+  if (url.startsWith('http')) return url
+  return `${API_URL}${url}`
+}
 
 function StatusBadge({ status }: { status: string }) {
   const icons = {
@@ -55,12 +70,25 @@ export default function DesignDetailPage() {
 
   const { data: design, isLoading, error } = useDesign(id)
   const deleteMutation = useDeleteDesign()
+  const toggleFavoriteMutation = useToggleFavorite()
+  const addToCollectionMutation = useAddToCollection()
+  const { data: collections } = useCollections()
+
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [showCollectionMenu, setShowCollectionMenu] = useState(false)
+  const [likesCount, setLikesCount] = useState<number | null>(null)
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace('/login')
     }
   }, [isAuthenticated, router])
+
+  useEffect(() => {
+    if (design) {
+      setLikesCount(design.likesCount)
+    }
+  }, [design])
 
   if (!isAuthenticated) return null
 
@@ -70,6 +98,18 @@ export default function DesignDetailPage() {
       router.push('/dashboard')
     }
   }
+
+  const handleToggleFavorite = async () => {
+    const result = await toggleFavoriteMutation.mutateAsync(id)
+    setLikesCount(result.likesCount)
+  }
+
+  const handleAddToCollection = async (collectionId: string) => {
+    await addToCollectionMutation.mutateAsync({ collectionId, designId: id })
+    setShowCollectionMenu(false)
+  }
+
+  const imageUrl = resolveImageUrl(design?.imageUrl)
 
   return (
     <div className="min-h-screen bg-gray-950 flex flex-col">
@@ -108,10 +148,10 @@ export default function DesignDetailPage() {
               {/* Image */}
               <div className="lg:col-span-3">
                 <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-800 border border-gray-700 shadow-2xl shadow-black/50">
-                  {design.status === 'done' && design.imageUrl ? (
+                  {design.status === 'done' && imageUrl ? (
                     <Image
-                      src={design.imageUrl}
-                      alt={design.prompt}
+                      src={imageUrl}
+                      alt={design.title ?? design.prompt}
                       fill
                       className="object-cover"
                       sizes="(max-width: 1024px) 100vw, 60vw"
@@ -140,10 +180,52 @@ export default function DesignDetailPage() {
                 <div>
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <StatusBadge status={design.status} />
+                    {design.isPublic && (
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium text-blue-400 bg-blue-400/10">
+                        <Globe className="h-3 w-3" />
+                        Public
+                      </span>
+                    )}
                   </div>
-                  <h1 className="text-xl font-semibold text-white leading-snug mb-3">
-                    {design.prompt}
+                  <h1 className="text-xl font-semibold text-white leading-snug mb-1">
+                    {design.title ?? design.prompt}
                   </h1>
+                  {design.title && (
+                    <p className="text-sm text-gray-400 line-clamp-3">{design.prompt}</p>
+                  )}
+                </div>
+
+                {/* Tags */}
+                {design.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    <Tag className="h-3.5 w-3.5 text-gray-500 mt-0.5" />
+                    {design.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full bg-gray-800 border border-gray-700 px-2 py-0.5 text-xs text-gray-300"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Likes */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleToggleFavorite}
+                    disabled={toggleFavoriteMutation.isPending}
+                    className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium border border-gray-700 bg-gray-900/60 hover:border-red-500/50 hover:text-red-400 transition-colors disabled:opacity-50"
+                    aria-label="Toggle favorite"
+                  >
+                    <Heart
+                      className={cn(
+                        'h-4 w-4 transition-colors',
+                        toggleFavoriteMutation.isPending ? 'animate-pulse' : ''
+                      )}
+                    />
+                    <span>{likesCount ?? design.likesCount}</span>
+                  </button>
                 </div>
 
                 {/* Metadata */}
@@ -175,7 +257,7 @@ export default function DesignDetailPage() {
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">Design ID</p>
-                        <p className="text-sm text-gray-200 font-mono text-xs">{design.id}</p>
+                        <p className="text-xs text-gray-200 font-mono">{design.id}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -183,9 +265,9 @@ export default function DesignDetailPage() {
 
                 {/* Actions */}
                 <div className="space-y-3">
-                  {design.status === 'done' && design.imageUrl && (
+                  {design.status === 'done' && imageUrl && (
                     <a
-                      href={design.imageUrl}
+                      href={imageUrl}
                       download={`textile-design-${design.id}.png`}
                       target="_blank"
                       rel="noreferrer"
@@ -197,8 +279,61 @@ export default function DesignDetailPage() {
                     </a>
                   )}
 
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    onClick={() => setShowEditModal(true)}
+                    className="w-full"
+                  >
+                    <Pencil className="h-4 w-4" />
+                    Edit Design
+                  </Button>
+
+                  {/* Add to Collection */}
+                  <div className="relative">
+                    <Button
+                      variant="outline"
+                      size="md"
+                      onClick={() => setShowCollectionMenu((v) => !v)}
+                      className="w-full"
+                    >
+                      <FolderPlus className="h-4 w-4" />
+                      Add to Collection
+                    </Button>
+
+                    {showCollectionMenu && (
+                      <div className="absolute bottom-full mb-2 left-0 right-0 z-20 rounded-xl border border-gray-700 bg-gray-900 shadow-xl shadow-black/40 overflow-hidden">
+                        {!collections || collections.length === 0 ? (
+                          <div className="px-4 py-3 text-sm text-gray-400">
+                            No collections yet.{' '}
+                            <Link href="/collections" className="text-fabric-400 hover:underline">
+                              Create one
+                            </Link>
+                          </div>
+                        ) : (
+                          <ul>
+                            {collections.map((col) => (
+                              <li key={col.id}>
+                                <button
+                                  onClick={() => handleAddToCollection(col.id)}
+                                  disabled={addToCollectionMutation.isPending}
+                                  className="w-full text-left px-4 py-2.5 text-sm text-gray-200 hover:bg-gray-800 transition-colors flex items-center justify-between disabled:opacity-50"
+                                >
+                                  <span>{col.name}</span>
+                                  <span className="text-xs text-gray-500">
+                                    {col._count?.designs ?? 0}
+                                  </span>
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   <Link href="/generate" className="block">
-                    <Button variant="secondary" size="lg" className="w-full">
+                    <Button variant="ghost" size="md" className="w-full">
                       <Palette className="h-4 w-4" />
                       Generate Similar
                     </Button>
@@ -220,6 +355,14 @@ export default function DesignDetailPage() {
           )}
         </main>
       </div>
+
+      {/* Edit modal */}
+      {showEditModal && design && (
+        <DesignEditModal
+          design={design}
+          onClose={() => setShowEditModal(false)}
+        />
+      )}
     </div>
   )
 }
