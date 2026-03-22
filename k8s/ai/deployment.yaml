@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai
+  namespace: textile-ai
+  labels:
+    app: ai
+    app.kubernetes.io/name: ai
+    app.kubernetes.io/part-of: textile-ai-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai
+  template:
+    metadata:
+      labels:
+        app: ai
+        app.kubernetes.io/name: ai
+    spec:
+      # Uncomment to schedule on GPU nodes:
+      # nodeSelector:
+      #   accelerator: nvidia-tesla-t4
+      # tolerations:
+      #   - key: nvidia.com/gpu
+      #     operator: Exists
+      #     effect: NoSchedule
+      containers:
+        - name: ai
+          image: textile-ai/ai:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "8000"
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ai-secrets
+                  key: REDIS_URL
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ai-secrets
+                  key: DATABASE_URL
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ai-secrets
+                  key: OPENAI_API_KEY
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ai-secrets
+                  key: HF_TOKEN
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+              # Uncomment for GPU:
+              # nvidia.com/gpu: "1"
+          volumeMounts:
+            - name: model-cache
+              mountPath: /app/model_cache
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            timeoutSeconds: 10
+            failureThreshold: 3
+      volumes:
+        - name: model-cache
+          persistentVolumeClaim:
+            claimName: ai-model-cache
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ai-secrets
+  namespace: textile-ai
+type: Opaque
+data:
+  # Base64-encoded placeholders - replace with real values before deploying
+  # echo -n 'value' | base64
+  REDIS_URL: cmVkaXM6Ly86cmVkaXNAcmVkaXM6NjM3OQ==
+  DATABASE_URL: cG9zdGdyZXNxbDovL3Bvc3RncmVzOnBvc3RncmVzQHBvc3RncmVzOjU0MzIvdGV4dGlsZV9haQ==
+  OPENAI_API_KEY: c2stel9wbGFjZWhvbGRlcg==
+  HF_TOKEN: aGZfcGxhY2Vob2xkZXI=
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-model-cache
+  namespace: textile-ai
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

@@ -1,0 +1,31 @@
+{
+  "name": "textile-ai-platform",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "docker-compose up",
+    "dev:detach": "docker-compose up -d",
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:api": "cd apps/api && npm run start:dev",
+    "dev:ai": "cd apps/ai && uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+    "build": "docker-compose build",
+    "build:web": "cd apps/web && npm run build",
+    "build:api": "cd apps/api && npm run build",
+    "stop": "docker-compose down",
+    "stop:volumes": "docker-compose down -v",
+    "logs": "docker-compose logs -f",
+    "logs:web": "docker-compose logs -f web",
+    "logs:api": "docker-compose logs -f api",
+    "logs:ai": "docker-compose logs -f ai",
+    "db:migrate": "cd apps/api && npm run prisma:migrate",
+    "db:studio": "cd apps/api && npm run prisma:studio",
+    "install:all": "npm install && cd apps/web && npm install && cd ../api && npm install",
+    "lint": "cd apps/web && npm run lint && cd ../api && npm run lint",
+    "type-check": "cd apps/web && npm run type-check"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}
