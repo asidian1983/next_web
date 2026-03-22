@@ -1,0 +1,17 @@
+project:
+  name: textile-ai-platform
+  stack:
+    frontend: nextjs
+    backend: nestjs
+    db: prisma
+    ai: fastapi
+    infra: k3s
+
+rules:
+  - use_typescript: true
+  - use_tailwind: true
+  - use_app_router: true
+  - clean_code: true
+  - scalable: true
+
+default_agent: planner
