@@ -8,32 +8,69 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      Role     @default(USER)
-  designs   Design[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String       @id @default(cuid())
+  email       String       @unique
+  password    String
+  name        String
+  role        Role         @default(USER)
+  designs     Design[]
+  collections Collection[]
+  favorites   Favorite[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
 
 model Design {
-  id          String       @id @default(cuid())
+  id          String             @id @default(cuid())
   prompt      String
-  style       String       @default("realistic")
+  style       String             @default("realistic")
   imageUrl    String?
-  status      DesignStatus @default(PENDING)
+  status      DesignStatus       @default(PENDING)
   jobId       String?
-  width       Int          @default(512)
-  height      Int          @default(512)
+  width       Int                @default(512)
+  height      Int                @default(512)
   title       String?
   tags        String[]
-  source      String       @default("generated")
-  user        User         @relation(fields: [userId], references: [id])
+  source      String             @default("generated")
+  isPublic    Boolean            @default(false)
+  likesCount  Int                @default(0)
+  user        User               @relation(fields: [userId], references: [id])
   userId      String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  favorites   Favorite[]
+  collections DesignCollection[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model Collection {
+  id          String             @id @default(cuid())
+  name        String
+  description String?
+  user        User               @relation(fields: [userId], references: [id])
+  userId      String
+  designs     DesignCollection[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model DesignCollection {
+  design       Design     @relation(fields: [designId], references: [id], onDelete: Cascade)
+  designId     String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId String
+  addedAt      DateTime   @default(now())
+
+  @@id([designId, collectionId])
+}
+
+model Favorite {
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  design    Design   @relation(fields: [designId], references: [id], onDelete: Cascade)
+  designId  String
+  createdAt DateTime @default(now())
+
+  @@id([userId, designId])
 }
 
 enum Role {
