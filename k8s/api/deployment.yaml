@@ -55,6 +55,9 @@ spec:
                 configMapKeyRef:
                   name: api-config
                   key: AI_SERVICE_URL
+          volumeMounts:
+            - name: uploads-storage
+              mountPath: /app/uploads
           resources:
             requests:
               memory: "256Mi"
@@ -78,6 +81,10 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
+      volumes:
+        - name: uploads-storage
+          persistentVolumeClaim:
+            claimName: api-uploads-pvc
       restartPolicy: Always
 ---
 apiVersion: v1

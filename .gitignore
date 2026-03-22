@@ -42,6 +42,10 @@ Thumbs.db
 # Local tools
 .omc/
 
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
 # Logs
 *.log
 npm-debug.log*
