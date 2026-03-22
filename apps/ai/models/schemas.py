@@ -18,6 +18,18 @@ class JobStatus(BaseModel):
     status: str  # pending, processing, done, failed
     image_url: str | None = None
     error: str | None = None
+    progress: int = 0
+    enhanced_prompt: str | None = None
+
+
+class BatchGenerateRequest(BaseModel):
+    prompts: list[GenerateRequest]  # max 4
+    width: int = 512
+    height: int = 512
+
+
+class BatchGenerateResponse(BaseModel):
+    jobs: list[GenerateResponse]
 
 
 class AnalyzeRequest(BaseModel):
