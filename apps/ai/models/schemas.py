@@ -18,3 +18,11 @@ class JobStatus(BaseModel):
     status: str  # pending, processing, done, failed
     image_url: str | None = None
     error: str | None = None
+
+
+class AnalyzeRequest(BaseModel):
+    image_url: str
+
+
+class AnalyzeResponse(BaseModel):
+    tags: list[str]
