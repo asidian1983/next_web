@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { PlusCircle, LayoutGrid, TrendingUp, Clock, CheckCircle } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useDesigns } from '@/hooks/useDesigns'
+import { useGenerationStats } from '@/hooks/useGenerationStats'
 import { Header } from '@/components/layout/Header'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { DesignGrid } from '@/components/designs/DesignGrid'
@@ -22,6 +23,7 @@ export default function DashboardPage() {
     style: filters.style || undefined,
     source: filters.source || undefined,
   })
+  const { data: statsData, isLoading: statsLoading } = useGenerationStats()
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -31,20 +33,33 @@ export default function DashboardPage() {
 
   if (!isAuthenticated) return null
 
-  const designs = data?.data ?? []
-  const total = data?.total ?? 0
-  const doneCount = designs.filter((d) => d.status === 'done').length
-  const pendingCount = designs.filter((d) => d.status === 'pending' || d.status === 'processing').length
+  const isStatsLoading = isLoading || statsLoading
 
   const stats = [
-    { label: 'Total Designs', value: total, icon: LayoutGrid, color: 'text-fabric-400' },
-    { label: 'Completed', value: doneCount, icon: CheckCircle, color: 'text-emerald-400' },
-    { label: 'In Progress', value: pendingCount, icon: Clock, color: 'text-amber-400' },
-    { label: 'This Month', value: designs.filter((d) => {
-      const date = new Date(d.createdAt)
-      const now = new Date()
-      return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
-    }).length, icon: TrendingUp, color: 'text-textile-400' },
+    {
+      label: 'Total Designs',
+      value: statsData?.total ?? data?.total ?? 0,
+      icon: LayoutGrid,
+      color: 'text-fabric-400',
+    },
+    {
+      label: 'Completed',
+      value: statsData?.byStatus?.['done'] ?? 0,
+      icon: CheckCircle,
+      color: 'text-emerald-400',
+    },
+    {
+      label: 'In Progress',
+      value: (statsData?.byStatus?.['pending'] ?? 0) + (statsData?.byStatus?.['processing'] ?? 0),
+      icon: Clock,
+      color: 'text-amber-400',
+    },
+    {
+      label: 'This Month',
+      value: statsData?.thisMonth ?? 0,
+      icon: TrendingUp,
+      color: 'text-textile-400',
+    },
   ]
 
   return (
@@ -83,7 +98,7 @@ export default function DashboardPage() {
                     <Icon className={`h-4 w-4 ${color}`} />
                   </div>
                   <p className="text-2xl font-bold text-white">
-                    {isLoading ? (
+                    {isStatsLoading ? (
                       <span className="inline-block h-7 w-10 rounded bg-gray-800 animate-pulse" />
                     ) : (
                       value
