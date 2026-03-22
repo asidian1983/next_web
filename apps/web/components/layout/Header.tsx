@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Sparkles, LogOut, LayoutDashboard, PlusCircle, User } from 'lucide-react'
+import { Sparkles, LogOut, LayoutDashboard, PlusCircle, Upload, User } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/Button'
@@ -16,6 +16,7 @@ export function Header() {
   const navLinks = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/generate', label: 'Generate', icon: PlusCircle },
+    { href: '/upload', label: 'Upload', icon: Upload },
   ]
 
   return (
