@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Textile AI Platform — Portfolio</title>
+  <meta name="description" content="AI 기반 텍스타일 디자인 플랫폼 — Next.js, NestJS, FastAPI, k3s로 구축한 풀스택 SaaS 포트폴리오" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #030712;
+      --bg2: #0f172a;
+      --bg3: #1e293b;
+      --border: rgba(255,255,255,0.08);
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #6366f1;
+      --accent2: #a78bfa;
+      --green: #34d399;
+      --blue: #60a5fa;
+      --pink: #f472b6;
+      --yellow: #fbbf24;
+      --orange: #fb923c;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(3,7,18,0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-brand { font-size: 1.1rem; font-weight: 700; color: var(--text); text-decoration: none; }
+    .nav-brand span { color: var(--accent2); }
+    .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-gh {
+      padding: 0.4rem 1rem; border-radius: 8px;
+      background: var(--accent); color: #fff; text-decoration: none;
+      font-size: 0.85rem; font-weight: 600; transition: opacity .2s;
+    }
+    .nav-gh:hover { opacity: 0.85; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 6rem 2rem 4rem;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 40%, rgba(99,102,241,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 60%, rgba(167,139,250,0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.3rem 1rem; border-radius: 999px;
+      background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3);
+      color: var(--accent2); font-size: 0.8rem; font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .badge::before { content: '●'; font-size: 0.5rem; color: var(--green); }
+    h1 {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 800; line-height: 1.1;
+      background: linear-gradient(135deg, #f1f5f9 0%, #a78bfa 50%, #6366f1 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1.5rem;
+    }
+    .hero-desc {
+      font-size: 1.2rem; color: var(--muted); max-width: 600px;
+      margin: 0 auto 2.5rem;
+    }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-bottom: 4rem; }
+    .btn-primary {
+      padding: 0.75rem 2rem; border-radius: 10px;
+      background: var(--accent); color: #fff;
+      text-decoration: none; font-weight: 600;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 0 20px rgba(99,102,241,0.4);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(99,102,241,0.6); }
+    .btn-secondary {
+      padding: 0.75rem 2rem; border-radius: 10px;
+      background: rgba(255,255,255,0.05); color: var(--text);
+      text-decoration: none; font-weight: 600;
+      border: 1px solid var(--border);
+      transition: background .2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+    /* Stats */
+    .stats {
+      display: flex; gap: 3rem; flex-wrap: wrap; justify-content: center;
+    }
+    .stat { text-align: center; }
+    .stat-num { font-size: 2rem; font-weight: 800; color: var(--text); }
+    .stat-label { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── SECTION ── */
+    section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+    .section-title {
+      font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem;
+    }
+    .section-sub { color: var(--muted); margin-bottom: 3rem; }
+
+    /* ── TECH STACK ── */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .tech-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.5rem;
+      transition: border-color .2s, transform .2s;
+    }
+    .tech-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .tech-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+    .tech-name { font-weight: 700; margin-bottom: 0.25rem; }
+    .tech-desc { font-size: 0.85rem; color: var(--muted); }
+    .tech-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.75rem; }
+    .tag {
+      padding: 0.2rem 0.6rem; border-radius: 6px;
+      font-size: 0.75rem; font-weight: 600;
+      background: rgba(255,255,255,0.06); color: var(--muted);
+    }
+
+    /* ── ARCHITECTURE ── */
+    .arch {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2rem; overflow-x: auto;
+    }
+    .arch pre {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.85rem; color: var(--muted);
+      line-height: 1.8; white-space: pre;
+    }
+    .arch pre .hl { color: var(--accent2); font-weight: bold; }
+    .arch pre .green { color: var(--green); }
+    .arch pre .blue { color: var(--blue); }
+    .arch pre .pink { color: var(--pink); }
+    .arch pre .yellow { color: var(--yellow); }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .feature-card {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.75rem;
+      transition: background .2s, border-color .2s;
+    }
+    .feature-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(99,102,241,0.3); }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; margin-bottom: 1rem;
+    }
+    .feature-title { font-weight: 700; margin-bottom: 0.5rem; }
+    .feature-desc { font-size: 0.9rem; color: var(--muted); }
+
+    /* ── PR TIMELINE ── */
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 2px; background: var(--border);
+    }
+    .timeline-group { margin-bottom: 2.5rem; }
+    .timeline-group-title {
+      font-size: 0.8rem; font-weight: 700; color: var(--accent2);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+    .pr-item {
+      position: relative; margin-bottom: 0.75rem;
+      padding: 1rem 1.25rem;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex; align-items: flex-start; gap: 1rem;
+      transition: border-color .2s;
+    }
+    .pr-item:hover { border-color: var(--accent); }
+    .pr-item::before {
+      content: ''; position: absolute; left: -2rem; top: 50%;
+      transform: translateY(-50%);
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--accent); border: 2px solid var(--bg);
+    }
+    .pr-num {
+      font-size: 0.75rem; font-weight: 700; color: var(--accent2);
+      background: rgba(99,102,241,0.15); padding: 0.2rem 0.5rem;
+      border-radius: 6px; white-space: nowrap;
+    }
+    .pr-info { flex: 1; }
+    .pr-title { font-weight: 600; font-size: 0.95rem; }
+    .pr-meta { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+    .pr-badge {
+      font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem;
+      border-radius: 5px; white-space: nowrap;
+    }
+    .badge-fe { background: rgba(96,165,250,0.15); color: var(--blue); }
+    .badge-be { background: rgba(52,211,153,0.15); color: var(--green); }
+    .badge-ai { background: rgba(167,139,250,0.15); color: var(--accent2); }
+    .badge-infra { background: rgba(251,191,36,0.15); color: var(--yellow); }
+    .badge-all { background: rgba(244,114,182,0.15); color: var(--pink); }
+
+    /* ── API DOCS ── */
+    .api-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .api-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.25rem;
+    }
+    .api-card h4 { font-size: 0.9rem; font-weight: 700; color: var(--muted); margin-bottom: 0.75rem; }
+    .endpoint {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 0.4rem; font-size: 0.82rem;
+    }
+    .method {
+      font-weight: 800; font-size: 0.7rem; padding: 0.1rem 0.4rem;
+      border-radius: 4px; min-width: 40px; text-align: center;
+    }
+    .get { background: rgba(52,211,153,0.2); color: var(--green); }
+    .post { background: rgba(96,165,250,0.2); color: var(--blue); }
+    .patch { background: rgba(251,191,36,0.2); color: var(--yellow); }
+    .delete { background: rgba(244,114,182,0.2); color: var(--pink); }
+    .ep-path { font-family: monospace; color: var(--muted); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    footer a { color: var(--accent2); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .stats { gap: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">Textile <span>AI</span></a>
+  <ul class="nav-links">
+    <li><a href="#stack">스택</a></li>
+    <li><a href="#features">기능</a></li>
+    <li><a href="#history">개발 이력</a></li>
+    <li><a href="#api">API</a></li>
+  </ul>
+  <a class="nav-gh" href="https://github.com/asidian1983/next_web" target="_blank">GitHub →</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge">풀스택 SaaS 포트폴리오 프로젝트</div>
+  <h1>Textile AI Platform</h1>
+  <p class="hero-desc">
+    AI 기반 텍스타일 디자인 생성 플랫폼 — Next.js · NestJS · FastAPI · k3s로
+    설계부터 배포까지 완성한 프로덕션 수준의 풀스택 프로젝트
+  </p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="https://github.com/asidian1983/next_web" target="_blank">코드 보기 →</a>
+    <a class="btn-secondary" href="#history">개발 이력 보기</a>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num">18</div><div class="stat-label">Pull Requests</div></div>
+    <div class="stat"><div class="stat-num">170+</div><div class="stat-label">파일</div></div>
+    <div class="stat"><div class="stat-num">10K+</div><div class="stat-label">줄의 코드</div></div>
+    <div class="stat"><div class="stat-num">4</div><div class="stat-label">마이크로서비스</div></div>
+  </div>
+</div>
+
+<!-- TECH STACK -->
+<section id="stack">
+  <div class="section-title">기술 스택</div>
+  <p class="section-sub">4개의 독립적인 서비스로 구성된 마이크로서비스 아키텍처</p>
+  <div class="tech-grid">
+    <div class="tech-card">
+      <div class="tech-icon">⚛️</div>
+      <div class="tech-name">Frontend</div>
+      <div class="tech-desc">Server Component 우선 설계, 인터랙티브 AI 생성 UI</div>
+      <div class="tech-tags">
+        <span class="tag">Next.js 14</span>
+        <span class="tag">TypeScript</span>
+        <span class="tag">Tailwind CSS</span>
+        <span class="tag">TanStack Query</span>
+        <span class="tag">Zustand</span>
+      </div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">🦺</div>
+      <div class="tech-name">Backend</div>
+      <div class="tech-desc">JWT 인증, CRUD API, SSE 스트림, Rate Limiting</div>
+      <div class="tech-tags">
+        <span class="tag">NestJS</span>
+        <span class="tag">Prisma</span>
+        <span class="tag">PostgreSQL</span>
+        <span class="tag">JWT</span>
+        <span class="tag">Helmet</span>
+      </div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">🤖</div>
+      <div class="tech-name">AI Service</div>
+      <div class="tech-desc">비동기 이미지 생성, SSE 진행 스트림, 배치 처리</div>
+      <div class="tech-tags">
+        <span class="tag">FastAPI</span>
+        <span class="tag">Pydantic v2</span>
+        <span class="tag">Pillow</span>
+        <span class="tag">Python 3.11</span>
+      </div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">☸️</div>
+      <div class="tech-name">Infra</div>
+      <div class="tech-desc">컨테이너 오케스트레이션, 자동 배포, 무중단 업데이트</div>
+      <div class="tech-tags">
+        <span class="tag">k3s</span>
+        <span class="tag">Docker</span>
+        <span class="tag">GitHub Actions</span>
+        <span class="tag">HPA</span>
+        <span class="tag">Traefik</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section>
+  <div class="section-title">아키텍처</div>
+  <p class="section-sub">서비스 간 통신 흐름</p>
+  <div class="arch"><pre>
+  <span class="hl">사용자 브라우저</span>
+       │
+       ▼
+  <span class="green">┌─────────────────────────────────────┐</span>
+  <span class="green">│   Next.js 14 (포트 3000)             │</span>
+  <span class="green">│   App Router · Server Components     │</span>
+  <span class="green">│   Zustand · TanStack Query · SSE     │</span>
+  <span class="green">└───────────────┬─────────────────────┘</span>
+                  │  REST API
+                  ▼
+  <span class="blue">┌─────────────────────────────────────┐</span>
+  <span class="blue">│   NestJS API (포트 3001)             │</span>
+  <span class="blue">│   JWT Auth · Prisma · Throttler      │</span>
+  <span class="blue">│   Helmet · Compression · /health     │</span>
+  <span class="blue">└──────┬────────────┬─────────────────┘</span>
+         │ Prisma ORM  │ HTTP (axios)
+         ▼             ▼
+  <span class="yellow">┌──────────┐   ┌──────────────────────┐</span>
+  <span class="yellow">│ PostgreSQL│   │  FastAPI (포트 8000)  │</span>
+  <span class="yellow">│  Redis   │   │  Pillow · SSE · Batch │</span>
+  <span class="yellow">└──────────┘   │  /generate · /analyze │</span>
+                 <span class="yellow">└──────────────────────┘</span>
+                        │ 이미지 저장
+                        ▼
+                 <span class="pink">./uploads/ (PVC 10Gi)</span>
+
+  <span class="hl">k3s 클러스터</span> — HPA · PDB · Traefik Ingress
+  <span class="hl">CI/CD</span> — PR → GitHub Actions → 자동 빌드/배포</pre></div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-title">구현 기능</div>
+  <p class="section-sub">설계부터 배포까지 완성된 기능 목록</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(99,102,241,0.15)">🎨</div>
+      <div class="feature-title">AI 텍스타일 생성</div>
+      <div class="feature-desc">텍스트 프롬프트로 8가지 스타일의 텍스타일 패턴 생성. SSE 실시간 진행률 스트림, seed 기반 재현, 배치(4개 동시) 지원</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(52,211,153,0.15)">📤</div>
+      <div class="feature-title">이미지 업로드 & 자동 태깅</div>
+      <div class="feature-desc">드래그앤드롭 업로드, AI가 텍스타일 어휘로 태그 자동 생성. 파일 타입/용량 검증, k3s PVC 스토리지</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(167,139,250,0.15)">🗂️</div>
+      <div class="feature-title">컬렉션 & 즐겨찾기</div>
+      <div class="feature-desc">디자인을 컬렉션으로 분류, 즐겨찾기 토글, 공개/비공개 설정, 공개 갤러리 페이지</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(251,191,36,0.15)">🔐</div>
+      <div class="feature-title">인증 & 보안</div>
+      <div class="feature-desc">JWT + Passport, bcrypt 패스워드, Next.js 미들웨어 쿠키 인증 가드, Helmet 보안 헤더, Rate Limiting</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(96,165,250,0.15)">🔍</div>
+      <div class="feature-title">검색 & 필터</div>
+      <div class="feature-desc">텍스트 검색, 스타일/소스/상태 필터, 페이지네이션. 대시보드 통계 (총 생성, 월별, 상태별)</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(244,114,182,0.15)">🚀</div>
+      <div class="feature-title">CI/CD & k3s 배포</div>
+      <div class="feature-desc">GitHub Actions 자동화, HPA(자동 스케일링), PDB(무중단 배포), Traefik Ingress, Kustomize</div>
+    </div>
+  </div>
+</section>
+
+<!-- PR TIMELINE -->
+<section id="history">
+  <div class="section-title">개발 이력</div>
+  <p class="section-sub">18개 PR로 완성한 단계별 구현 과정</p>
+  <div class="timeline">
+
+    <div class="timeline-group">
+      <div class="timeline-group-title">Phase 1 — 플랫폼 기반 구축</div>
+      <div class="pr-item">
+        <span class="pr-num">#1</span>
+        <div class="pr-info">
+          <div class="pr-title">Docker & Kubernetes 인프라</div>
+          <div class="pr-meta">docker-compose · k3s 매니페스트 · Dockerfile 3종 · .env 구성</div>
+        </div>
+        <span class="pr-badge badge-infra">Infra</span>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">#2</span>
+        <div class="pr-info">
+          <div class="pr-title">NestJS API — Prisma + JWT 인증</div>
+          <div class="pr-meta">Auth · Designs CRUD · PrismaModule · class-validator</div>
+        </div>
+        <span class="pr-badge badge-be">Backend</span>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">#3</span>
+        <div class="pr-info">
+          <div class="pr-title">FastAPI AI 이미지 생성 서비스</div>
+          <div class="pr-meta">Pillow Mock · 비동기 작업 큐 · /health /ready 엔드포인트</div>
+        </div>
+        <span class="pr-badge badge-ai">AI</span>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">#4</span>
+        <div class="pr-info">
+          <div class="pr-title">Next.js 14 프론트엔드</div>
+          <div class="pr-meta">App Router · Zustand · TanStack Query · 6개 페이지</div>
+        </div>
+        <span class="pr-badge badge-fe">Frontend</span>
+      </div>
+    </div>
+
+    <div class="timeline-group">
+      <div class="timeline-group-title">Phase 2 — 디자인 업로드 기능</div>
+      <div class="pr-item">
+        <span class="pr-num">#5</span>
+        <div class="pr-info">
+          <div class="pr-title">FastAPI 이미지 분석 엔드포인트</div>
+          <div class="pr-meta">POST /analyze · 텍스타일 어휘 태그 자동 생성</div>
+        </div>
+        <span class="pr-badge badge-ai">AI</span>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">#6</span>
+        <div class="pr-info">
+          <div class="pr-title">파일 업로드 스토리지 인프라</div>
+          <div class="pr-meta">docker-compose 볼륨 · k8s PVC 10Gi · non-root 권한</div>
+        </div>
+        <span class="pr-badge badge-infra">Infra</span>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">#7</span>
+        <div class="pr-info">
+          <div class="pr-title">NestJS 업로드 API + 자동 태깅</div>
+          <div class="pr-meta">Multer · POST /designs/upload · AI 태그 연동 · 정적 파일 서빙</div>
+        </div>
+        <span class="pr-badge badge-be">Backend</span>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">#8</span>
+        <div class="pr-info">
+          <div class="pr-title">드래그앤드롭 업로드 UI</div>
+          <div class="pr-meta">UploadZone · useUpload · 미리보기 · 태그 표시</div>
+        </div>
+        <span class="pr-badge badge-fe">Frontend</span>
+      </div>
+    </div>
+
+    <div class="timeline-group">
+      <div class="timeline-group-title">Phase 3 — Design 서비스 전체 구축</div>
+      <div class="pr-item">
+        <span class="pr-num">#9</span>
+        <div class="pr-info">
+          <div class="pr-title">Collections · 즐겨찾기 · 검색/필터 API</div>
+          <div class="pr-meta">Collection · Favorite Prisma 모델 · 7개 신규 엔드포인트</div>
+        </div>
+        <span class="pr-badge badge-be">Backend</span>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">#10</span>
+        <div class="pr-info">
+          <div class="pr-title">갤러리 · 컬렉션 · 즐겨찾기 UI</div>
+          <div class="pr-meta">4개 신규 페이지 · SearchFilter · DesignEditModal</div>
+        </div>
+        <span class="pr-badge badge-fe">Frontend</span>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">#11</span>
+        <div class="pr-info">
+          <div class="pr-title">Rate Limiting · ConfigMap · 환경변수</div>
+          <div class="pr-meta">k8s ConfigMap · Throttle 설정 · NEXT_PUBLIC_API_URL</div>
+        </div>
+        <span class="pr-badge badge-infra">Infra</span>
+      </div>
+    </div>
+
+    <div class="timeline-group">
+      <div class="timeline-group-title">Phase 4 — AI 생성 고도화</div>
+      <div class="pr-item">
+        <span class="pr-num">#12</span>
+        <div class="pr-info">
+          <div class="pr-title">8종 패턴 생성기 + SSE 스트림</div>
+          <div class="pr-meta">weave/floral/geometric/damask/chevron/paisley · Seed · 배치 4개</div>
+        </div>
+        <span class="pr-badge badge-ai">AI</span>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">#13</span>
+        <div class="pr-info">
+          <div class="pr-title">SSE 프록시 · 배치 API · 통계</div>
+          <div class="pr-meta">GET /generate/:id/stream · POST /generate/batch · GET /stats</div>
+        </div>
+        <span class="pr-badge badge-be">Backend</span>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">#14</span>
+        <div class="pr-info">
+          <div class="pr-title">고급 생성 UI — 실시간 진행 + 배치</div>
+          <div class="pr-meta">SSE ReadableStream · StylePresetGrid · BatchGeneratePanel</div>
+        </div>
+        <span class="pr-badge badge-fe">Frontend</span>
+      </div>
+    </div>
+
+    <div class="timeline-group">
+      <div class="timeline-group-title">Phase 5 — 배포 & 최적화</div>
+      <div class="pr-item">
+        <span class="pr-num">#15</span>
+        <div class="pr-info">
+          <div class="pr-title">GitHub Actions CI/CD · HPA · PDB</div>
+          <div class="pr-meta">ci.yml · deploy.yml · Makefile · Kustomize · deploy.sh</div>
+        </div>
+        <span class="pr-badge badge-infra">Infra</span>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">#16</span>
+        <div class="pr-info">
+          <div class="pr-title">NestJS 프로덕션 보안 강화</div>
+          <div class="pr-meta">Helmet · Compression · ThrottlerModule · /health · AllExceptionsFilter</div>
+        </div>
+        <span class="pr-badge badge-be">Backend</span>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">#17</span>
+        <div class="pr-info">
+          <div class="pr-title">Next.js 프로덕션 최적화</div>
+          <div class="pr-meta">보안 헤더 · 쿠키 인증 미들웨어 · error.tsx · not-found.tsx</div>
+        </div>
+        <span class="pr-badge badge-fe">Frontend</span>
+      </div>
+      <div class="pr-item">
+        <span class="pr-num">#18</span>
+        <div class="pr-info">
+          <div class="pr-title">데모 랜딩 페이지</div>
+          <div class="pr-meta">Glassmorphism · 5섹션 · AI 체험 데모 · 스켈레톤 로딩 · SEO</div>
+        </div>
+        <span class="pr-badge badge-all">All</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- API DOCS -->
+<section id="api">
+  <div class="section-title">주요 API</div>
+  <p class="section-sub">RESTful API + SSE 스트리밍 엔드포인트</p>
+  <div class="api-grid">
+    <div class="api-card">
+      <h4>🔐 인증</h4>
+      <div class="endpoint"><span class="method post">POST</span><span class="ep-path">/auth/register</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="ep-path">/auth/login</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="ep-path">/health</span></div>
+    </div>
+    <div class="api-card">
+      <h4>🎨 디자인 생성</h4>
+      <div class="endpoint"><span class="method post">POST</span><span class="ep-path">/designs/generate</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="ep-path">/designs/generate/batch</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="ep-path">/designs/generate/:id/stream</span></div>
+    </div>
+    <div class="api-card">
+      <h4>📋 디자인 관리</h4>
+      <div class="endpoint"><span class="method get">GET</span><span class="ep-path">/designs</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="ep-path">/designs/public</span></div>
+      <div class="endpoint"><span class="method patch">PATCH</span><span class="ep-path">/designs/:id</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="ep-path">/designs/upload</span></div>
+    </div>
+    <div class="api-card">
+      <h4>🗂️ 컬렉션 & 즐겨찾기</h4>
+      <div class="endpoint"><span class="method get">GET</span><span class="ep-path">/collections</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="ep-path">/collections</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="ep-path">/designs/:id/favorite</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="ep-path">/designs/stats</span></div>
+    </div>
+    <div class="api-card">
+      <h4>🤖 AI 서비스 (FastAPI)</h4>
+      <div class="endpoint"><span class="method post">POST</span><span class="ep-path">/generate</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="ep-path">/generate/batch</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="ep-path">/jobs/:id/stream</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="ep-path">/analyze</span></div>
+    </div>
+    <div class="api-card">
+      <h4>⚡ 빠른 시작</h4>
+      <div style="font-size:0.8rem; color: var(--muted); font-family: monospace; line-height: 2;">
+        cp .env.example .env<br>
+        docker-compose up<br>
+        <span style="color:var(--green)"># web: localhost:3000</span><br>
+        <span style="color:var(--blue)"># api: localhost:3001</span><br>
+        <span style="color:var(--accent2)"># ai:  localhost:8000</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p style="margin-bottom:0.5rem">
+    <strong>Textile AI Platform</strong> — 풀스택 SaaS 포트폴리오
+  </p>
+  <p>
+    <a href="https://github.com/asidian1983/next_web" target="_blank">GitHub Repository</a>
+    &nbsp;·&nbsp;
+    Next.js · NestJS · FastAPI · k3s
+    &nbsp;·&nbsp;
+    Built with Claude Code
+  </p>
+</footer>
+
+</body>
+</html>
