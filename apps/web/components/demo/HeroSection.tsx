@@ -71,13 +71,23 @@ export function HeroSection() {
 
           {/* Right: Spline 3D Interactive */}
           <div className="relative lg:pl-8">
-            <div className="relative rounded-2xl border border-white/10 overflow-hidden shadow-2xl shadow-black/50" style={{ height: '500px' }}>
+            {/* Ambient glow behind the scene */}
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-purple-600/20 via-fabric-600/15 to-textile-500/20 blur-3xl scale-110 pointer-events-none" />
+
+            <div className="relative rounded-2xl overflow-hidden" style={{ height: '520px' }}>
+              {/* Iframe slightly oversized to crop Spline watermark */}
               <iframe
                 src="https://my.spline.design/boxeshover-owt6mJfKfrEtuxEuXtS0K5VC/"
                 width="100%"
-                height="100%"
+                height="115%"
                 title="3D Interactive Preview"
+                className="absolute inset-0"
+                style={{ marginTop: '-2%' }}
               />
+              {/* Bottom gradient to hide watermark */}
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-950 to-transparent pointer-events-none" />
+              {/* Subtle border glow */}
+              <div className="absolute inset-0 rounded-2xl ring-1 ring-white/10 pointer-events-none" />
             </div>
           </div>
         </div>
