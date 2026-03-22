@@ -9,6 +9,7 @@ import {
   Settings,
   Sparkles,
   ChevronRight,
+  Upload,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
@@ -16,6 +17,7 @@ import { useAuthStore } from '@/store/authStore'
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/generate', label: 'Generate Design', icon: PlusCircle },
+  { href: '/upload', label: 'Upload', icon: Upload },
   { href: '/designs', label: 'My Designs', icon: Image },
   { href: '/settings', label: 'Settings', icon: Settings },
 ]
