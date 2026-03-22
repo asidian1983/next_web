@@ -1,0 +1,14 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: web-pdb
+  namespace: textile-ai
+  labels:
+    app: web
+    app.kubernetes.io/name: web
+    app.kubernetes.io/part-of: textile-ai-platform
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: web

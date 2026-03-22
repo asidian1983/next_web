@@ -1,0 +1,116 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    name: Build & Push Docker Images
+    runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push web image
+        uses: docker/build-push-action@v5
+        with:
+          context: apps/web
+          push: true
+          tags: |
+            ${{ secrets.REGISTRY_URL }}/textile-ai/web:latest
+            ${{ secrets.REGISTRY_URL }}/textile-ai/web:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push api image
+        uses: docker/build-push-action@v5
+        with:
+          context: apps/api
+          push: true
+          tags: |
+            ${{ secrets.REGISTRY_URL }}/textile-ai/api:latest
+            ${{ secrets.REGISTRY_URL }}/textile-ai/api:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push ai image
+        uses: docker/build-push-action@v5
+        with:
+          context: apps/ai
+          push: true
+          tags: |
+            ${{ secrets.REGISTRY_URL }}/textile-ai/ai:latest
+            ${{ secrets.REGISTRY_URL }}/textile-ai/ai:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Update image tags in k8s manifests
+        run: |
+          sed -i "s|image: textile-ai/web:.*|image: ${{ secrets.REGISTRY_URL }}/textile-ai/web:${{ github.sha }}|g" k8s/web/deployment.yaml
+          sed -i "s|image: textile-ai/api:.*|image: ${{ secrets.REGISTRY_URL }}/textile-ai/api:${{ github.sha }}|g" k8s/api/deployment.yaml
+          sed -i "s|image: textile-ai/ai:.*|image: ${{ secrets.REGISTRY_URL }}/textile-ai/ai:${{ github.sha }}|g" k8s/ai/deployment.yaml
+
+      - name: Upload updated manifests
+        uses: actions/upload-artifact@v4
+        with:
+          name: k8s-manifests
+          path: k8s/
+
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+      - name: Download updated manifests
+        uses: actions/download-artifact@v4
+        with:
+          name: k8s-manifests
+          path: k8s/
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Apply k8s manifests
+        run: kubectl apply -f k8s/
+
+      - name: Wait for web rollout
+        run: kubectl rollout status deployment/web -n textile-ai --timeout=300s
+
+      - name: Wait for api rollout
+        run: kubectl rollout status deployment/api -n textile-ai --timeout=300s
+
+      - name: Wait for ai rollout
+        run: kubectl rollout status deployment/ai -n textile-ai --timeout=300s
+
+      - name: Health check verification
+        run: |
+          echo "Verifying deployments are ready..."
+          kubectl get deployments -n textile-ai
+          kubectl get pods -n textile-ai
+
+          # Wait for all pods to be in Running state
+          kubectl wait --for=condition=ready pod \
+            -l app.kubernetes.io/part-of=textile-ai-platform \
+            -n textile-ai \
+            --timeout=300s
+
+          echo "All deployments healthy."
