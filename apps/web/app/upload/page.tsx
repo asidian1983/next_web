@@ -66,21 +66,19 @@ export default function UploadPage() {
       <div className="flex flex-1">
         <Sidebar />
         <main className="flex-1 p-6 lg:p-8 min-w-0">
-          {/* Page header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-textile-500/20 to-fabric-600/20 border border-fabric-500/30">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-fabric-500/15 to-fabric-600/15 border border-fabric-500/20">
                 <Upload className="h-4 w-4 text-fabric-400" />
               </div>
               <h1 className="text-2xl font-bold text-white">Upload Design</h1>
             </div>
-            <p className="text-gray-400 text-sm ml-12">
+            <p className="text-gray-500 text-sm ml-12">
               Upload an existing image to get AI-generated tags and add it to your collection.
             </p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-6">
-            {/* Upload form */}
             <Card variant="elevated">
               <CardHeader>
                 <CardTitle>Select Image</CardTitle>
@@ -111,7 +109,7 @@ export default function UploadPage() {
                     isLoading={isUploading}
                   >
                     <Upload className="h-5 w-5" />
-                    {isUploading ? 'Uploading…' : 'Upload Design'}
+                    {isUploading ? 'Uploading...' : 'Upload Design'}
                   </Button>
                   {(selectedFile || uploadedDesign) && (
                     <Button variant="ghost" size="lg" onClick={handleReset} disabled={isUploading}>
@@ -128,7 +126,6 @@ export default function UploadPage() {
               </CardContent>
             </Card>
 
-            {/* Result */}
             <Card variant="elevated">
               <CardHeader>
                 <CardTitle>Result</CardTitle>
@@ -136,8 +133,8 @@ export default function UploadPage() {
               </CardHeader>
               <CardContent>
                 {!uploadedDesign ? (
-                  <div className="flex flex-col items-center justify-center h-80 rounded-lg border border-dashed border-gray-700 bg-gray-900/30">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-textile-500/20 to-fabric-600/20 border border-fabric-500/30 mb-4">
+                  <div className="flex flex-col items-center justify-center h-80 rounded-xl border border-dashed border-white/[0.08] bg-white/[0.01]">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-fabric-500/15 to-fabric-600/15 border border-fabric-500/20 mb-4">
                       <Upload className="h-7 w-7 text-fabric-400" />
                     </div>
                     <p className="text-gray-400 font-medium">No design uploaded yet</p>
@@ -145,15 +142,13 @@ export default function UploadPage() {
                   </div>
                 ) : (
                   <div className="space-y-5">
-                    {/* Success banner */}
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-medium">
+                    <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-500/8 border border-emerald-500/20 text-emerald-400 text-sm font-medium">
                       <CheckCircle className="h-4 w-4 shrink-0" />
                       <span>Design uploaded successfully!</span>
                     </div>
 
-                    {/* Image preview */}
                     {resultImageUrl && (
-                      <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-800">
+                      <div className="relative aspect-square rounded-xl overflow-hidden bg-white/[0.02]">
                         <Image
                           src={resultImageUrl}
                           alt={uploadedDesign.title ?? 'Uploaded design'}
@@ -164,26 +159,24 @@ export default function UploadPage() {
                       </div>
                     )}
 
-                    {/* Title */}
                     {uploadedDesign.title && (
                       <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Title</p>
+                        <p className="text-xs text-gray-600 uppercase tracking-wide mb-1">Title</p>
                         <p className="text-sm text-gray-200">{uploadedDesign.title}</p>
                       </div>
                     )}
 
-                    {/* Tags */}
                     {uploadedDesign.tags.length > 0 && (
                       <div>
                         <div className="flex items-center gap-1.5 mb-2">
                           <Tag className="h-3.5 w-3.5 text-fabric-400" />
-                          <p className="text-xs text-gray-500 uppercase tracking-wide">AI-generated tags</p>
+                          <p className="text-xs text-gray-600 uppercase tracking-wide">AI-generated tags</p>
                         </div>
                         <div className="flex flex-wrap gap-1.5">
                           {uploadedDesign.tags.map((tag) => (
                             <span
                               key={tag}
-                              className="px-2 py-0.5 rounded-full text-xs bg-fabric-500/15 border border-fabric-500/30 text-fabric-300"
+                              className="px-2.5 py-0.5 rounded-full text-xs bg-fabric-500/10 border border-fabric-500/20 text-fabric-300"
                             >
                               {tag}
                             </span>
@@ -192,7 +185,6 @@ export default function UploadPage() {
                       </div>
                     )}
 
-                    {/* Link to detail */}
                     <Link href={`/designs/${uploadedDesign.id}`} className="block">
                       <Button variant="secondary" size="sm" className="w-full">
                         View Design Details

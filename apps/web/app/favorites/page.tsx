@@ -24,8 +24,8 @@ function FavoriteCard({ design }: { design: Design }) {
   const imageUrl = resolveImageUrl(design.imageUrl)
 
   return (
-    <div className="group relative flex flex-col rounded-xl overflow-hidden bg-gray-900 border border-gray-800 hover:border-gray-600 transition-all duration-300 hover:shadow-xl hover:shadow-black/40">
-      <div className="relative aspect-square bg-gray-800 overflow-hidden">
+    <div className="group relative flex flex-col rounded-2xl overflow-hidden bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300 hover:shadow-xl hover:shadow-black/30">
+      <div className="relative aspect-square bg-white/[0.02] overflow-hidden">
         {imageUrl ? (
           <Image
             src={imageUrl}
@@ -36,11 +36,11 @@ function FavoriteCard({ design }: { design: Design }) {
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <ImageOff className="h-10 w-10 text-gray-600" />
+            <ImageOff className="h-10 w-10 text-gray-700" />
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3">
           <Link href={`/designs/${design.id}`}>
             <Button variant="secondary" size="sm" className="text-xs">
               <ExternalLink className="h-3.5 w-3.5" />
@@ -55,7 +55,7 @@ function FavoriteCard({ design }: { design: Design }) {
           {design.title ?? design.prompt}
         </p>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-500 bg-gray-800/60 rounded-full px-2 py-0.5 capitalize">
+          <span className="text-xs text-gray-500 bg-white/[0.06] border border-white/[0.04] rounded-full px-2 py-0.5 capitalize">
             {design.style}
           </span>
           <span className="flex items-center gap-1 text-xs text-red-400">
@@ -95,13 +95,13 @@ export default function FavoritesPage() {
               <Heart className="h-6 w-6 text-red-400 fill-red-400" />
               Favorites
             </h1>
-            <p className="text-gray-400 mt-1 text-sm">
+            <p className="text-gray-500 mt-1 text-sm">
               Designs you&apos;ve liked
             </p>
           </div>
 
           {!isLoading && !error && total > 0 && (
-            <p className="text-xs text-gray-500 mb-4">{total} favorited design{total !== 1 ? 's' : ''}</p>
+            <p className="text-xs text-gray-600 mb-4">{total} favorited design{total !== 1 ? 's' : ''}</p>
           )}
 
           {isLoading && (
@@ -119,7 +119,7 @@ export default function FavoritesPage() {
 
           {!isLoading && !error && designs.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 gap-6">
-              <div className="h-24 w-24 rounded-2xl bg-gradient-to-br from-red-500/10 to-red-600/10 border border-red-500/20 flex items-center justify-center">
+              <div className="h-24 w-24 rounded-2xl bg-red-500/8 border border-red-500/15 flex items-center justify-center">
                 <Heart className="h-10 w-10 text-red-400" />
               </div>
               <div className="text-center max-w-sm">

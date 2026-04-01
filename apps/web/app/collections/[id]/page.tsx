@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import {
   ArrowLeft,
   FolderOpen,
@@ -66,45 +67,51 @@ function EditCollectionModal({ id, name: initialName, description: initialDesc, 
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/90 backdrop-blur-2xl"
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <Card variant="elevated" className="w-full max-w-md animate-slide-up">
-        <CardHeader>
-          <CardTitle>Edit Collection</CardTitle>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <Input
-              label="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              autoFocus
-            />
-            <Input
-              label="Description"
-              placeholder="Optional description..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </CardContent>
-          <CardFooter className="flex gap-3 justify-end">
-            <Button type="button" variant="secondary" size="md" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              size="md"
-              isLoading={updateMutation.isPending}
-              disabled={!name.trim()}
-            >
-              Save Changes
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+      >
+        <Card variant="elevated" className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Edit Collection</CardTitle>
+          </CardHeader>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4">
+              <Input
+                label="Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                autoFocus
+              />
+              <Input
+                label="Description"
+                placeholder="Optional description..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </CardContent>
+            <CardFooter className="flex gap-3 justify-end">
+              <Button type="button" variant="secondary" size="md" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                isLoading={updateMutation.isPending}
+                disabled={!name.trim()}
+              >
+                Save Changes
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      </motion.div>
     </div>
   )
 }
@@ -122,8 +129,8 @@ function CollectionDesignCard({ design, collectionId }: { design: Design; collec
   }
 
   return (
-    <div className="group relative flex flex-col rounded-xl overflow-hidden bg-gray-900 border border-gray-800 hover:border-gray-600 transition-all duration-300 hover:shadow-xl hover:shadow-black/40">
-      <div className="relative aspect-square bg-gray-800 overflow-hidden">
+    <div className="group relative flex flex-col rounded-2xl overflow-hidden bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300 hover:shadow-xl hover:shadow-black/30">
+      <div className="relative aspect-square bg-white/[0.02] overflow-hidden">
         {imageUrl ? (
           <Image
             src={imageUrl}
@@ -134,11 +141,11 @@ function CollectionDesignCard({ design, collectionId }: { design: Design; collec
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <ImageOff className="h-10 w-10 text-gray-600" />
+            <ImageOff className="h-10 w-10 text-gray-700" />
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3">
           <Link href={`/designs/${design.id}`}>
             <Button variant="secondary" size="sm" className="text-xs">
               <ExternalLink className="h-3.5 w-3.5" />
@@ -162,7 +169,7 @@ function CollectionDesignCard({ design, collectionId }: { design: Design; collec
         <p className="text-sm text-gray-200 font-medium line-clamp-2 leading-snug">
           {design.title ?? design.prompt}
         </p>
-        <span className="text-xs text-gray-500 bg-gray-800/60 rounded-full px-2 py-0.5 self-start capitalize">
+        <span className="text-xs text-gray-500 bg-white/[0.06] border border-white/[0.04] rounded-full px-2 py-0.5 self-start capitalize">
           {design.style}
         </span>
       </div>
@@ -244,13 +251,13 @@ export default function CollectionDetailPage() {
               {/* Header */}
               <div className="flex items-start justify-between gap-4 mb-8">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-fabric-500/20 to-textile-600/20 border border-fabric-500/20 shrink-0">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-fabric-500/15 to-textile-600/15 border border-fabric-500/20 shrink-0">
                     <FolderOpen className="h-6 w-6 text-fabric-400" />
                   </div>
                   <div>
                     <h1 className="text-2xl font-bold text-white">{collection.name}</h1>
                     {collection.description && (
-                      <p className="text-gray-400 text-sm mt-0.5">{collection.description}</p>
+                      <p className="text-gray-500 text-sm mt-0.5">{collection.description}</p>
                     )}
                     <div className="flex items-center gap-3 mt-1">
                       <span className="flex items-center gap-1 text-xs text-gray-500">
@@ -286,7 +293,7 @@ export default function CollectionDetailPage() {
               {/* Designs grid */}
               {collection.designs.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-6">
-                  <div className="h-24 w-24 rounded-2xl bg-gradient-to-br from-fabric-500/20 to-textile-600/20 border border-fabric-500/30 flex items-center justify-center">
+                  <div className="h-24 w-24 rounded-2xl bg-gradient-to-br from-fabric-500/10 to-textile-600/10 border border-fabric-500/15 flex items-center justify-center">
                     <Images className="h-10 w-10 text-fabric-400" />
                   </div>
                   <div className="text-center max-w-sm">
@@ -303,12 +310,18 @@ export default function CollectionDetailPage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {collection.designs.map((design) => (
-                    <CollectionDesignCard
+                  {collection.designs.map((design, i) => (
+                    <motion.div
                       key={design.id}
-                      design={design}
-                      collectionId={collection.id}
-                    />
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.35, delay: i * 0.05 }}
+                    >
+                      <CollectionDesignCard
+                        design={design}
+                        collectionId={collection.id}
+                      />
+                    </motion.div>
                   ))}
                 </div>
               )}
