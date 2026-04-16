@@ -1,6 +1,5 @@
-import type { NextConfig } from 'next'
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   output: 'standalone',
 
   // Image optimization
@@ -30,7 +29,6 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Cache static assets
         source: '/static/(.*)',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
