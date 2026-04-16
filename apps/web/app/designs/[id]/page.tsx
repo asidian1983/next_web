@@ -147,7 +147,7 @@ export default function DesignDetailPage() {
             <div className="grid lg:grid-cols-5 gap-8">
               {/* Image */}
               <div className="lg:col-span-3">
-                <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-800 border border-gray-700 shadow-2xl shadow-black/50">
+                <div className="relative aspect-square rounded-2xl overflow-hidden bg-white/[0.02] border border-white/[0.06] shadow-2xl shadow-black/50">
                   {design.status === 'done' && imageUrl ? (
                     <Image
                       src={imageUrl}
@@ -161,7 +161,7 @@ export default function DesignDetailPage() {
                     <div className="absolute inset-0 flex items-center justify-center">
                       {design.status === 'processing' || design.status === 'pending' ? (
                         <div className="text-center">
-                          <div className="h-16 w-16 rounded-full border-2 border-gray-700 border-t-fabric-500 animate-spin mx-auto mb-4" />
+                          <div className="h-16 w-16 rounded-full border-2 border-white/[0.08] border-t-fabric-500 animate-spin mx-auto mb-4" />
                           <p className="text-gray-400">Generating your design...</p>
                         </div>
                       ) : (
@@ -181,7 +181,7 @@ export default function DesignDetailPage() {
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <StatusBadge status={design.status} />
                     {design.isPublic && (
-                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium text-blue-400 bg-blue-400/10">
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium text-blue-400 bg-blue-400/10 border border-blue-400/20">
                         <Globe className="h-3 w-3" />
                         Public
                       </span>
@@ -202,7 +202,7 @@ export default function DesignDetailPage() {
                     {design.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="rounded-full bg-gray-800 border border-gray-700 px-2 py-0.5 text-xs text-gray-300"
+                        className="rounded-full bg-fabric-500/10 border border-fabric-500/20 px-2.5 py-0.5 text-xs text-fabric-300"
                       >
                         {tag}
                       </span>
@@ -215,7 +215,7 @@ export default function DesignDetailPage() {
                   <button
                     onClick={handleToggleFavorite}
                     disabled={toggleFavoriteMutation.isPending}
-                    className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium border border-gray-700 bg-gray-900/60 hover:border-red-500/50 hover:text-red-400 transition-colors disabled:opacity-50"
+                    className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-medium border border-white/[0.08] bg-white/[0.03] hover:border-red-500/40 hover:text-red-400 transition-colors disabled:opacity-50"
                     aria-label="Toggle favorite"
                   >
                     <Heart
@@ -232,7 +232,7 @@ export default function DesignDetailPage() {
                 <Card variant="default">
                   <CardContent className="py-4 space-y-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-800">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.06] border border-white/[0.04]">
                         <Palette className="h-4 w-4 text-fabric-400" />
                       </div>
                       <div>
@@ -242,7 +242,7 @@ export default function DesignDetailPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-800">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.06] border border-white/[0.04]">
                         <Calendar className="h-4 w-4 text-textile-400" />
                       </div>
                       <div>
@@ -252,7 +252,7 @@ export default function DesignDetailPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-800">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.06] border border-white/[0.04]">
                         <ImageIcon className="h-4 w-4 text-emerald-400" />
                       </div>
                       <div>
@@ -292,7 +292,7 @@ export default function DesignDetailPage() {
                   {/* Add to Collection */}
                   <div className="relative">
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       size="md"
                       onClick={() => setShowCollectionMenu((v) => !v)}
                       className="w-full"
@@ -302,7 +302,7 @@ export default function DesignDetailPage() {
                     </Button>
 
                     {showCollectionMenu && (
-                      <div className="absolute bottom-full mb-2 left-0 right-0 z-20 rounded-xl border border-gray-700 bg-gray-900 shadow-xl shadow-black/40 overflow-hidden">
+                      <div className="absolute bottom-full mb-2 left-0 right-0 z-20 rounded-xl border border-white/[0.08] bg-gray-900/95 backdrop-blur-xl shadow-xl shadow-black/40 overflow-hidden">
                         {!collections || collections.length === 0 ? (
                           <div className="px-4 py-3 text-sm text-gray-400">
                             No collections yet.{' '}
@@ -317,7 +317,7 @@ export default function DesignDetailPage() {
                                 <button
                                   onClick={() => handleAddToCollection(col.id)}
                                   disabled={addToCollectionMutation.isPending}
-                                  className="w-full text-left px-4 py-2.5 text-sm text-gray-200 hover:bg-gray-800 transition-colors flex items-center justify-between disabled:opacity-50"
+                                  className="w-full text-left px-4 py-2.5 text-sm text-gray-200 hover:bg-white/[0.06] transition-colors flex items-center justify-between disabled:opacity-50"
                                 >
                                   <span>{col.name}</span>
                                   <span className="text-xs text-gray-500">

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { PlusCircle, LayoutGrid, TrendingUp, Clock, CheckCircle } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useDesigns } from '@/hooks/useDesigns'
@@ -12,7 +13,6 @@ import { Sidebar } from '@/components/layout/Sidebar'
 import { DesignGrid } from '@/components/designs/DesignGrid'
 import { SearchFilter, type SearchFilterValues } from '@/components/designs/SearchFilter'
 import { Button } from '@/components/ui/Button'
-import { Card, CardContent } from '@/components/ui/Card'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -35,30 +35,37 @@ export default function DashboardPage() {
 
   const isStatsLoading = isLoading || statsLoading
 
+  const designs = data?.data ?? []
+  const total = data?.total ?? 0
+
   const stats = [
     {
       label: 'Total Designs',
-      value: statsData?.total ?? data?.total ?? 0,
+      value: statsData?.total ?? total,
       icon: LayoutGrid,
       color: 'text-fabric-400',
+      gradient: 'from-fabric-400 to-fabric-600',
     },
     {
       label: 'Completed',
       value: statsData?.byStatus?.['done'] ?? 0,
       icon: CheckCircle,
       color: 'text-emerald-400',
+      gradient: 'from-emerald-400 to-emerald-600',
     },
     {
       label: 'In Progress',
       value: (statsData?.byStatus?.['pending'] ?? 0) + (statsData?.byStatus?.['processing'] ?? 0),
       icon: Clock,
       color: 'text-amber-400',
+      gradient: 'from-amber-400 to-amber-600',
     },
     {
       label: 'This Month',
       value: statsData?.thisMonth ?? 0,
       icon: TrendingUp,
       color: 'text-textile-400',
+      gradient: 'from-textile-400 to-textile-600',
     },
   ]
 
@@ -74,7 +81,7 @@ export default function DashboardPage() {
               <h1 className="text-2xl font-bold text-white">
                 Welcome back, {user?.name?.split(' ')[0]}
               </h1>
-              <p className="text-gray-400 mt-1 text-sm">
+              <p className="text-gray-500 mt-1 text-sm">
                 Here&apos;s an overview of your textile designs
               </p>
             </div>
@@ -88,24 +95,30 @@ export default function DashboardPage() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {stats.map(({ label, value, icon: Icon, color }) => (
-              <Card key={label} variant="default" className="hover:border-gray-700 transition-colors">
-                <CardContent className="py-4 px-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {label}
-                    </span>
-                    <Icon className={`h-4 w-4 ${color}`} />
-                  </div>
-                  <p className="text-2xl font-bold text-white">
-                    {isStatsLoading ? (
-                      <span className="inline-block h-7 w-10 rounded bg-gray-800 animate-pulse" />
-                    ) : (
-                      value
-                    )}
-                  </p>
-                </CardContent>
-              </Card>
+            {stats.map(({ label, value, icon: Icon, color, gradient }, i) => (
+              <motion.div
+                key={label}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+                className="relative overflow-hidden rounded-2xl bg-white/[0.03] border border-white/[0.06] p-5 hover:bg-white/[0.05] hover:border-white/[0.1] transition-all duration-300"
+              >
+                <div className={`absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b ${gradient}`} />
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {label}
+                  </span>
+                  <Icon className={`h-4 w-4 ${color}`} />
+                </div>
+                <p className="text-2xl font-bold text-white">
+                  {isStatsLoading ? (
+                    <span className="inline-block h-7 w-10 rounded bg-white/[0.04] animate-shimmer" />
+                  ) : (
+                    value
+                  )}
+                </p>
+              </motion.div>
             ))}
           </div>
 
@@ -114,11 +127,11 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-200">Your Designs</h2>
               {designs.length > 0 && (
-                <span className="text-xs text-gray-500">{total} total</span>
+                <span className="text-xs text-gray-600">{total} total</span>
               )}
             </div>
             <SearchFilter values={filters} onChange={setFilters} className="mb-4" />
-            <DesignGrid designs={data?.data ?? []} isLoading={isLoading} />
+            <DesignGrid designs={designs} isLoading={isLoading} />
           </div>
         </main>
       </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { FolderOpen, Plus, Trash2, Images } from 'lucide-react'
 import { useCollections, useCreateCollection, useDeleteCollection } from '@/hooks/useCollections'
 import { useAuthStore } from '@/store/authStore'
@@ -40,46 +41,52 @@ function CreateCollectionModal({ onClose }: CreateModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/90 backdrop-blur-2xl"
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <Card variant="elevated" className="w-full max-w-md animate-slide-up">
-        <CardHeader>
-          <CardTitle>New Collection</CardTitle>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <Input
-              label="Name"
-              placeholder="My favourite florals..."
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              autoFocus
-            />
-            <Input
-              label="Description"
-              placeholder="Optional description..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </CardContent>
-          <CardFooter className="flex gap-3 justify-end">
-            <Button type="button" variant="secondary" size="md" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              size="md"
-              isLoading={createMutation.isPending}
-              disabled={!name.trim()}
-            >
-              Create Collection
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+      >
+        <Card variant="elevated" className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>New Collection</CardTitle>
+          </CardHeader>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4">
+              <Input
+                label="Name"
+                placeholder="My favourite florals..."
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                autoFocus
+              />
+              <Input
+                label="Description"
+                placeholder="Optional description..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </CardContent>
+            <CardFooter className="flex gap-3 justify-end">
+              <Button type="button" variant="secondary" size="md" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                isLoading={createMutation.isPending}
+                disabled={!name.trim()}
+              >
+                Create Collection
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      </motion.div>
     </div>
   )
 }
@@ -115,11 +122,13 @@ export default function CollectionsPage() {
         <main className="flex-1 p-6 lg:p-8 min-w-0">
           <div className="flex items-start justify-between mb-8">
             <div>
-              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                <FolderOpen className="h-6 w-6 text-fabric-400" />
-                Collections
-              </h1>
-              <p className="text-gray-400 mt-1 text-sm">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-fabric-500/15 to-fabric-600/15 border border-fabric-500/20">
+                  <FolderOpen className="h-4 w-4 text-fabric-400" />
+                </div>
+                <h1 className="text-2xl font-bold text-white">Collections</h1>
+              </div>
+              <p className="text-gray-500 text-sm ml-12">
                 Organise your designs into collections
               </p>
             </div>
@@ -144,7 +153,7 @@ export default function CollectionsPage() {
 
           {!isLoading && !error && (!collections || collections.length === 0) && (
             <div className="flex flex-col items-center justify-center py-24 gap-6">
-              <div className="h-24 w-24 rounded-2xl bg-gradient-to-br from-fabric-500/20 to-textile-600/20 border border-fabric-500/30 flex items-center justify-center">
+              <div className="h-24 w-24 rounded-2xl bg-gradient-to-br from-fabric-500/10 to-textile-600/10 border border-fabric-500/15 flex items-center justify-center">
                 <FolderOpen className="h-10 w-10 text-fabric-400" />
               </div>
               <div className="text-center max-w-sm">
@@ -162,44 +171,51 @@ export default function CollectionsPage() {
 
           {collections && collections.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {collections.map((col) => (
-                <Link key={col.id} href={`/collections/${col.id}`}>
-                  <Card
-                    variant="default"
-                    className="hover:border-gray-600 transition-all duration-200 cursor-pointer group h-full"
-                  >
-                    <CardContent className="py-5">
-                      <div className="flex items-start justify-between gap-3 mb-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-fabric-500/20 to-textile-600/20 border border-fabric-500/20 shrink-0">
-                          <FolderOpen className="h-5 w-5 text-fabric-400" />
+              {collections.map((col, i) => (
+                <motion.div
+                  key={col.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: i * 0.06 }}
+                >
+                  <Link href={`/collections/${col.id}`}>
+                    <Card
+                      variant="default"
+                      className="hover:bg-white/[0.05] hover:border-white/[0.12] transition-all duration-300 cursor-pointer group h-full hover:shadow-xl hover:shadow-black/30"
+                    >
+                      <CardContent className="py-5">
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-fabric-500/15 to-textile-600/15 border border-fabric-500/20 shrink-0">
+                            <FolderOpen className="h-5 w-5 text-fabric-400" />
+                          </div>
+                          <button
+                            onClick={(e) => handleDelete(e, col.id)}
+                            disabled={deleteMutation.isPending}
+                            className="opacity-0 group-hover:opacity-100 rounded-lg p-1.5 text-gray-500 hover:text-red-400 hover:bg-white/[0.06] transition-all"
+                            aria-label="Delete collection"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </div>
-                        <button
-                          onClick={(e) => handleDelete(e, col.id)}
-                          disabled={deleteMutation.isPending}
-                          className="opacity-0 group-hover:opacity-100 rounded-lg p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-800 transition-all"
-                          aria-label="Delete collection"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
 
-                      <h3 className="text-base font-semibold text-gray-100 group-hover:text-white transition-colors line-clamp-1">
-                        {col.name}
-                      </h3>
-                      {col.description && (
-                        <p className="text-sm text-gray-500 mt-1 line-clamp-2">{col.description}</p>
-                      )}
+                        <h3 className="text-base font-semibold text-gray-100 group-hover:text-white transition-colors line-clamp-1">
+                          {col.name}
+                        </h3>
+                        {col.description && (
+                          <p className="text-sm text-gray-500 mt-1 line-clamp-2">{col.description}</p>
+                        )}
 
-                      <div className="flex items-center justify-between mt-4">
-                        <span className="flex items-center gap-1.5 text-xs text-gray-500">
-                          <Images className="h-3.5 w-3.5" />
-                          {col._count?.designs ?? 0} design{(col._count?.designs ?? 0) !== 1 ? 's' : ''}
-                        </span>
-                        <span className="text-xs text-gray-600">{formatDate(col.createdAt)}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                        <div className="flex items-center justify-between mt-4">
+                          <span className="flex items-center gap-1.5 text-xs text-gray-500">
+                            <Images className="h-3.5 w-3.5" />
+                            {col._count?.designs ?? 0} design{(col._count?.designs ?? 0) !== 1 ? 's' : ''}
+                          </span>
+                          <span className="text-xs text-gray-600">{formatDate(col.createdAt)}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </motion.div>
               ))}
             </div>
           )}

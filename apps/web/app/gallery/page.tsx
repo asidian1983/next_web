@@ -36,7 +36,7 @@ function PublicDesignCard({ design }: { design: Design }) {
   }
 
   return (
-    <div className="group relative rounded-xl overflow-hidden bg-gray-900 border border-gray-800 hover:border-gray-600 transition-all duration-300 hover:shadow-xl hover:shadow-black/40 break-inside-avoid mb-4">
+    <div className="group relative rounded-2xl overflow-hidden bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300 hover:shadow-xl hover:shadow-black/30 break-inside-avoid mb-4">
       {imageUrl ? (
         <div className="relative w-full">
           <Image
@@ -49,13 +49,13 @@ function PublicDesignCard({ design }: { design: Design }) {
           />
         </div>
       ) : (
-        <div className="aspect-square bg-gray-800 flex items-center justify-center">
-          <ImageOff className="h-10 w-10 text-gray-600" />
+        <div className="aspect-square bg-white/[0.02] flex items-center justify-center">
+          <ImageOff className="h-10 w-10 text-gray-700" />
         </div>
       )}
 
       {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3">
         <Link href={`/designs/${design.id}`}>
           <Button variant="secondary" size="sm" className="text-xs">
             <ExternalLink className="h-3.5 w-3.5" />
@@ -66,7 +66,7 @@ function PublicDesignCard({ design }: { design: Design }) {
           <button
             onClick={handleFavorite}
             disabled={toggleFavoriteMutation.isPending}
-            className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium bg-gray-900/80 border border-gray-700 hover:border-red-500/50 hover:text-red-400 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-medium bg-white/[0.08] backdrop-blur-sm border border-white/[0.1] hover:border-red-500/40 hover:text-red-400 transition-colors disabled:opacity-50"
             aria-label="Like design"
           >
             <Heart className="h-3.5 w-3.5" />
@@ -81,7 +81,7 @@ function PublicDesignCard({ design }: { design: Design }) {
           {design.title ?? design.prompt}
         </p>
         <div className="flex items-center justify-between mt-2">
-          <span className="text-xs text-gray-500 bg-gray-800/60 rounded-full px-2 py-0.5 capitalize">
+          <span className="text-xs text-gray-500 bg-white/[0.06] border border-white/[0.04] rounded-full px-2 py-0.5 capitalize">
             {design.style}
           </span>
           <span className={cn('flex items-center gap-1 text-xs text-gray-500')}>
@@ -120,15 +120,13 @@ export default function GalleryPage() {
       <div className="flex flex-1">
         <Sidebar />
         <main className="flex-1 p-6 lg:p-8 min-w-0">
-          {/* Page header */}
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-white">Public Gallery</h1>
-            <p className="text-gray-400 mt-1 text-sm">
+            <p className="text-gray-500 mt-1 text-sm">
               Discover textile designs shared by the community
             </p>
           </div>
 
-          {/* Filters */}
           <SearchFilter
             values={filters}
             onChange={handleFilterChange}
@@ -136,9 +134,8 @@ export default function GalleryPage() {
             className="mb-6"
           />
 
-          {/* Results count */}
           {!isLoading && !error && (
-            <p className="text-xs text-gray-500 mb-4">
+            <p className="text-xs text-gray-600 mb-4">
               {total} design{total !== 1 ? 's' : ''} found
             </p>
           )}
@@ -158,13 +155,12 @@ export default function GalleryPage() {
 
           {!isLoading && !error && designs.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 gap-4">
-              <ImageOff className="h-12 w-12 text-gray-600" />
+              <ImageOff className="h-12 w-12 text-gray-700" />
               <p className="text-gray-400">No public designs found</p>
               <p className="text-sm text-gray-600">Try a different search or style filter</p>
             </div>
           )}
 
-          {/* Masonry grid */}
           {designs.length > 0 && (
             <>
               <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4">
@@ -173,7 +169,6 @@ export default function GalleryPage() {
                 ))}
               </div>
 
-              {/* Pagination */}
               <div className="flex items-center justify-center gap-4 mt-8">
                 <Button
                   variant="secondary"
@@ -183,7 +178,7 @@ export default function GalleryPage() {
                 >
                   Previous
                 </Button>
-                <span className="text-sm text-gray-400">Page {page}</span>
+                <span className="text-sm text-gray-500">Page {page}</span>
                 <Button
                   variant="secondary"
                   size="sm"
