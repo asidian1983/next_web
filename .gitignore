@@ -6,13 +6,14 @@ node_modules/
 # Next.js
 apps/web/.next/
 apps/web/out/
+apps/web/tsconfig.tsbuildinfo
 
 # NestJS
 apps/api/dist/
 
 # Python
-apps/ai/__pycache__/
-apps/ai/*.pyc
+**/__pycache__/
+**/*.pyc
 apps/ai/.venv/
 apps/ai/venv/
 apps/ai/static/generated/*.png
